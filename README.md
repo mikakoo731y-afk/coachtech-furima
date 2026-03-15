@@ -6,7 +6,7 @@
 
 git clone https://github.com/mikakoo731y-afk/coachtech-furima
 
-cd contact-app
+cd coachtech-furima
 
 docker-compose up -d --build
 
@@ -25,10 +25,9 @@ php artisan key:generate
 php artisan migrate:fresh --seed
 
 **2. 開発環境URL**
-
-- **TOP画面:** http://localhost:8080
-- **登録ページ:** 
-- **phpMyAdmin:** http://localhost:8080
+- **TOP画面:** http://localhost
+- **phpMyAdmin:** http://localhost:8080
+- **MailHog:** http://localhost:8025
 
 **3. 使用技術（実行環境）**
 
@@ -104,6 +103,7 @@ erDiagram
         unsigned_bigint user_id FK "出品者ID"
         unsigned_bigint condition_id FK "状態ID"
         varchar name "商品名"
+        varchar brand_name "ブランド名"
         integer price "販売価格"
         text description "商品説明"
         varchar img_url "商品画像"

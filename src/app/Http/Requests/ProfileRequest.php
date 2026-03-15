@@ -22,10 +22,23 @@ class ProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'img_url'     => 'nullable|mimes:jpeg,png', // 拡張子が.jpegもしくは.png
-            'name'        => 'required|max:20',        // 20文字以内
-            'postal_code' => 'required|regex:/^\d{3}-\d{4}$/', // ハイフンありの8文字
+            'img_url'     => 'nullable|image|mimes:jpeg,png',
+            'name'        => 'required|max:20',
+            'postal_code' => 'required|size:8',
             'address'     => 'required',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return[
+            'img_url.required'       => '画像をアップロードしてください',
+            'img_url.mimes'          => '指定の拡張子（.jpeg, .png）でアップロードしてください',
+            'name.required'     => 'お名前を入力してください',
+            'name.max'          => 'お名前は20文字以内で入力してください',
+            'postal_code.required' => '郵便番号を入力してください',
+            'postal_code.size'     => '郵便番号はハイフンありの8文字で入力してください',
+            'address.required'     => '住所を入力してください',
         ];
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use App\Models\Purchase;
+use App\Models\Profile;
 use Illuminate\Http\Request;
 use App\Http\Requests\ProfileRequest;
 use Illuminate\Support\Facades\Auth;
@@ -13,34 +14,46 @@ class ProfileController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        
-        if ($request->page === 'buy') {
-            // 購入した商品
-            $items = Item::whereIn('id', Purchase::where('user_id', $user->id)->pluck('item_id'))->get();
+        $page = $request->query('page');
+
+        if ($page === 'buy') {
+            $items = Item::whereHas('purchases', function($q) use($user) {
+                $q->where('user_id', $user->id);
+            })->latest()->get();
         } else {
-            // 出品した商品（デフォルト）
-            $items = Item::where('user_id', $user->id)->get();
+            $items = Item::where('user_id', $user->id)->latest()->get();
         }
 
-        return view('mypage', compact('user', 'items'));
+        return view('mypage', compact('user', 'items', 'page'));
     }
 
     public function edit()
     {
-        return view('profile');
+        $user = Auth::user();
+        $profile = $user->profile ?? new Profile();
+        return view('profile', compact('user', 'profile'));
     }
 
     public function update(ProfileRequest $request)
     {
         $user = Auth::user();
-        $data = $request->only(['name', 'postal_code', 'address', 'building']);
+
+        $user->update(['name' => $request->name]);
+
+        $data = [
+            'name'        => $request->name,
+            'postal_code' => $request->postal_code,
+            'address'     => $request->address,
+            'building'    => $request->building,
+        ];
 
         if ($request->hasFile('img_url')) {
-            $data['img_url'] = $request->file('img_url')->store('profiles', 'public');
+            $path = $request->file('img_url')->store('profiles', 'public');
+            $data['img_url'] = $path;
         }
 
         $user->profile()->updateOrCreate(['user_id' => $user->id], $data);
 
-        return redirect('/mypage');
+        return redirect()->route('mypage.index')->with('message', 'プロフィールを更新しました');
     }
 }

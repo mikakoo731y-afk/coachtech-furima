@@ -24,4 +24,7 @@ Homestead.yaml
 Thumbs.db
 
 # Dockerのデータディレクトリを除外
+docker/mysql/data/**
 docker/mysql/data/
+/docker/mysql/data/
+

@@ -1,41 +1,40 @@
 @extends('layouts.app')
 
 @section('content')
-<div>
-    <h2>住所の変更</h2>
-    
-    <!-- どの商品に対する配送先変更かを保持するためitem_idをパスに含めます -->
-    <form action="/purchase/address/{{ $item->id }}" method="POST">
+<div class="address">
+    <h2 class="address__title">住所の変更</h2>
+
+    <form action="{{ route('address.update', ['item_id' => $item->id]) }}" method="POST">
         @csrf
         
-        <div>
-            <label for="postal_code">郵便番号</label>
-            <!-- 要件：バリデーション（ハイフンあり8文字） -->
-            <input type="text" id="postal_code" name="postal_code" value="{{ old('postal_code', Auth::user()->profile->postal_code ?? '') }}">
+        <div class="address__group">
+            <label for="postal_code" class="address__label">郵便番号</label>
+            <input type="text" id="postal_code" name="postal_code" 
+                   value="{{ old('postal_code', Auth::user()->profile->postal_code ?? '') }}" class="address__input">
             @error('postal_code')
-                <p style="color: red;">{{ $message }}</p>
+                <p class="auth__error">{{ $message }}</p>
             @enderror
         </div>
 
-        <div>
-            <label for="address">住所</label>
-            <input type="text" id="address" name="address" value="{{ old('address', Auth::user()->profile->address ?? '') }}">
+        <div class="address__group">
+            <label for="address" class="address__label">住所</label>
+            <input type="text" id="address" name="address" 
+                   value="{{ old('address', Auth::user()->profile->address ?? '') }}" class="address__input">
             @error('address')
-                <p style="color: red;">{{ $message }}</p>
+                <p class="auth__error">{{ $message }}</p>
             @enderror
         </div>
 
-        <div>
-            <label for="building">建物名</label>
-            <input type="text" id="building" name="building" value="{{ old('building', Auth::user()->profile->building ?? '') }}">
+        <div class="address__group">
+            <label for="building" class="address__label">建物名</label>
+            <input type="text" id="building" name="building" 
+                   value="{{ old('building', Auth::user()->profile->building ?? '') }}" class="address__input">
             @error('building')
-                <p style="color: red;">{{ $message }}</p>
+                <p class="auth__error">{{ $message }}</p>
             @enderror
         </div>
 
-        <div>
-            <button type="submit">更新する</button>
-        </div>
+        <button type="submit" class="address__btn">更新する</button>
     </form>
 </div>
 @endsection

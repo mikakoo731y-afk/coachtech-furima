@@ -1,34 +1,45 @@
 @extends('layouts.app')
 
 @section('content')
-<div>
-    <!-- 要件：タブ切り替え（おすすめ/マイリスト） -->
-    <nav>
-        <div>
-            <a href="/">おすすめ</a>
-            <a href="/?tab=mylist">マイリスト</a>
+<div class="index">
+    <nav class="index__nav">
+        <div class="index__nav-inner">
+            <a href="{{ route('item.index', ['keyword' => request('keyword')]) }}" 
+               class="index__nav-link {{ !request('tab') ? 'is-active' : '' }}">
+                おすすめ
+            </a>
+            <a href="{{ route('item.index', ['tab' => 'mylist', 'keyword' => request('keyword')]) }}" 
+               class="index__nav-link {{ request('tab') === 'mylist' ? 'is-active' : '' }}">
+                マイリスト
+            </a>
         </div>
     </nav>
 
-    <section>
-        <h2>商品一覧</h2>
-        <div class="item-grid">
-            @foreach($items as $item)
-                <div class="item-card">
-                    <a href="/item/{{ $item->id }}">
-                        <!-- 商品画像（Storageまたは外部URL） -->
-                        <div>
-                            <img src="{{ $item->img_url }}" alt="{{ $item->name }}" style="width: 100%; max-width: 200px;">
-                        </div>
-                        <div>
-                            <p>{{ $item->name }}</p>
-                            <!-- 価格（カンマ区切り） -->
-                            <p>¥{{ number_format($item->price) }}</p>
-                        </div>
-                    </a>
-                </div>
-            @endforeach
-        </div>
-    </section>
+    {{-- 商品一覧グリッド --}}
+    <div class="index__item-grid">
+        @forelse($items as $item)
+            <div class="item-card">
+                <a href="{{ route('item.show', ['item_id' => $item->id]) }}">
+                    <div class="item-card__image-wrapper">
+                        {{-- 商品画像 --}}
+                        <img src="{{ asset('storage/' . $item->img_url) }}" alt="{{ $item->name }}">
+                        {{-- Sold表示 (FN014-3) --}}
+                        @if($item->purchases->isNotEmpty())
+                            <div class="item-card__sold">
+                                <span>Sold</span>
+                            </div>
+                        @endif
+                    </div>
+                    <div class="item-card__content">
+                        <p class="item-card__name">{{ $item->name }}</p>
+                    </div>
+                </a>
+            </div>
+        @empty
+            <div class="index__empty">
+                <p>表示する商品がありません。</p>
+            </div>
+        @endforelse
+    </div>
 </div>
 @endsection

@@ -13,26 +13,43 @@ class ItemController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Item::query();
-        // マイリストタブの処理
-        if ($request->tab === 'mylist' && Auth::check()) {
-            $query->whereHas('likes', function($q) {
-                $q->where('user_id', Auth::id());
-            });
+        $keyword = $request->query('keyword');
+        $tab = $request->query('tab');
+
+        $query = Item::with(['purchases', 'likes']);
+
+        if ($keyword) {
+            $query->where('name', 'like', '%' . $keyword . '%');
+        }
+
+        if ($tab === 'mylist') {
+            if (Auth::check()) {
+                $query->whereHas('likes', function($q) {
+                    $q->where('user_id', Auth::id());
+                });
+            } else {
+                $items = collect([]);
+                return view('index', compact('items', 'keyword', 'tab'));
+            }
+        } else {
+            if (Auth::check()) {
+                $query->where('user_id', '!=', Auth::id());
+            }
         }
 
         $items = $query->latest()->get();
-        return view('index', compact('items'));
+
+        return view('index', compact('items', 'keyword', 'tab'));
     }
 
-    // 商品詳細
     public function show($item_id)
     {
-        $item = Item::with(['condition', 'categories', 'comments.user'])->findOrFail($item_id);
+        $item = Item::with(['condition', 'categories', 'comments.user', 'likes', 'purchases'])
+                    ->findOrFail($item_id);
+
         return view('detail', compact('item'));
     }
 
-    // 出品画面表示
     public function create()
     {
         $categories = Category::all();
@@ -40,23 +57,22 @@ class ItemController extends Controller
         return view('sell', compact('categories', 'conditions'));
     }
 
-    // 出品処理
     public function store(ExhibitionRequest $request)
     {
         $path = $request->file('img_url')->store('items', 'public');
 
         $item = Item::create([
-            'user_id' => Auth::id(),
+            'user_id'      => Auth::id(),
             'condition_id' => $request->condition_id,
-            'name' => $request->name,
-            'brand_name' => $request->brand_name,
-            'price' => $request->price,
-            'description' => $request->description,
-            'img_url' => $path,
+            'name'         => $request->name,
+            'brand_name'   => $request->brand_name,
+            'price'        => $request->price,
+            'description'  => $request->description,
+            'img_url'      => $path,
         ]);
 
         $item->categories()->attach($request->categories);
 
-        return redirect('/');
+        return redirect('/')->with('message', '商品を出品しました');
     }
 }

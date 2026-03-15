@@ -11,21 +11,23 @@ class AddressController extends Controller
     public function edit($item_id)
     {
         $item = Item::findOrFail($item_id);
-        return view('address', compact('item'));
+        $address = session("shipping_address_{$item_id}") ?? [
+            'postal_code' => Auth::user()->profile->postal_code ?? '',
+            'address'     => Auth::user()->profile->address ?? '',
+            'building'    => Auth::user()->profile->building ?? '',
+        ];
+
+        return view('address', compact('item', 'address'));
     }
 
     public function update(AddressRequest $request, $item_id)
     {
-        $user = Auth::user();
-        $user->profile()->updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'postal_code' => $request->postal_code,
-                'address' => $request->address,
-                'building' => $request->building,
-            ]
-        );
+        session(["shipping_address_{$item_id}" => [
+            'postal_code' => $request->postal_code,
+            'address'     => $request->address,
+            'building'    => $request->building,
+        ]]);
 
-        return redirect("/purchase/{$item_id}");
+        return redirect()->route('purchase.show', ['item_id' => $item_id]);
     }
 }

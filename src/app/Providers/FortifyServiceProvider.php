@@ -13,6 +13,11 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
 use Laravel\Fortify\Fortify;
+use Laravel\Fortify\Http\Requests\RegisterRequest as FortifyRegisterRequest;
+use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\LoginRequest;
+use Laravel\Fortify\Http\Requests\LoginRequest as FortifyLoginRequest;
+
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -22,6 +27,7 @@ class FortifyServiceProvider extends ServiceProvider
     public function register(): void
     {
         //
+        $this->app->bind(FortifyLoginRequest::class, LoginRequest::class);
     }
 
     /**
@@ -45,14 +51,48 @@ class FortifyServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by($request->session()->get('login.id'));
         });
 
-        // 会員登録画面の指定
         Fortify::registerView(fn() => view('auth.register'));
 
-        // ログイン画面の指定
         Fortify::loginView(fn() => view('auth.login'));
 
-        // メール認証待ち画面の指定
         Fortify::verifyEmailView(fn() => view('auth.verify-email'));
+
+        $this->app->bind(FortifyRegisterRequest::class, RegisterRequest::class);
+
+        $this->app->instance(\Laravel\Fortify\Http\Responses\VerifyEmailResponse::class,
+            new class implements \Laravel\Fortify\Contracts\VerifyEmailResponse {
+                public function toResponse($request) {
+                    return redirect('/mypage/profile');
+                }
+            }
+        );
+        $this->app->instance(\Laravel\Fortify\Http\Responses\VerifyEmailResponse::class,
+            new class implements \Laravel\Fortify\Contracts\VerifyEmailResponse {
+                public function toResponse($request) {
+                    return redirect('/mypage/profile');
+                }
+            }
+        );
+
+        $this->app->instance(\Laravel\Fortify\Http\Responses\RegisterResponse::class,
+            new class implements \Laravel\Fortify\Contracts\RegisterResponse {
+                public function toResponse($request) {
+                    return redirect('/email/verify');
+                }
+            }
+        );
+
+        Fortify::authenticateUsing(function ($request) {
+            $user = \App\Models\User::where('email', $request->email)->first();
+
+            if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+                return $user;
+            }
+
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                Fortify::username() => 'ログイン情報が登録されていません',
+            ]);
+        });
 
 
     }
