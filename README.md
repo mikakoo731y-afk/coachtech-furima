@@ -22,6 +22,8 @@ cp .env.example .env
 
 php artisan key:generate
 
+php artisan storage:link
+
 php artisan migrate:fresh --seed
 
 **2. 開発環境URL**
