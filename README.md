@@ -49,8 +49,14 @@ php artisan migrate:fresh --seed
 
 **主要な実装機能（バリデーション等**
 - **FormRequest:** ユーザー側および管理者側の入力バリデーションに使用
+- **PHPUnit:** 全16項目のテストケースによる動作検証（認証・一覧・購入・いいね等）
+- **Stripe API:** クレジットカード決済およびコンビニ決済の実装
+- **メール認証:** 会員登録時の認証メール送信機能
 - **Eloquent Factory / Seeder:** テストデータ（35件）および初期カテゴリーデータの生成
 - **Laravel Blade:** フロントエンド（ユーザー画面・管理者画面）の構築
+
+**5. テストの実行**
+docker-compose exec php php src/artisan test src/tests/Feature/ItemTest.php
 
 **4.ER図**
 ```mermaid

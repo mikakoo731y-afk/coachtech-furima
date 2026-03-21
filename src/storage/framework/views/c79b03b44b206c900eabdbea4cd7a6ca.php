@@ -10,11 +10,11 @@
 <body>
     <header class="header">
         <div class="header__inner">
-            <h1 class="header__logo">
+            <div class="header__logo">
                 <a href="<?php echo e(route('item.index')); ?>">
                     <img src="<?php echo e(asset('storage/img/logo.png')); ?>" alt="COACHTECH">
                 </a>
-            </h1>
+            </div>
 
             <?php if(!Route::is('login') && !Route::is('register') && !Route::is('verification.notice')): ?>
                 

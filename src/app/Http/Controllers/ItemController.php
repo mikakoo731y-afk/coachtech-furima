@@ -8,6 +8,8 @@ use App\Models\Condition;
 use Illuminate\Http\Request;
 use App\Http\Requests\ExhibitionRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
 
 class ItemController extends Controller
 {

@@ -23,7 +23,7 @@ class PurchaseRequest extends FormRequest
     {
         return [
             'payment_method' => 'required',
-            'address_id' => 'required',
+            'shipping_address' => 'required',
         ];
     }
 
@@ -31,7 +31,7 @@ class PurchaseRequest extends FormRequest
     {
         return [
             'payment_method.required' => 'お支払い方法を選択してください',
-            'address_id.required'     => '配送先住所を選択してください',
+            'shipping_address.required'     => '配送先住所を選択してください',
         ];
     }
 }

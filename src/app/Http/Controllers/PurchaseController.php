@@ -49,6 +49,13 @@ class PurchaseController extends Controller
             'mode' => 'payment',
             'success_url' => route('purchase.success', ['item_id' => $item_id]),
             'cancel_url' => route('purchase.show', ['item_id' => $item_id]),
+
+            'metadata' => [
+                'user_id' => Auth::id(),
+                'item_id' => $item_id,
+                'shipping_address' => $request->shipping_address,
+                'payment_method' => $request->payment_method,
+            ],
         ]);
 
         Purchase::create([
